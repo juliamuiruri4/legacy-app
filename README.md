@@ -102,15 +102,35 @@ For course exercises that aren't about auth, the frontend runs with `DEV_TOKEN_M
 
 ## What's intentionally broken or missing
 
-This is a teaching codebase. Several services have deliberate gaps that drive the course exercises (see [`exercises.md`](exercises.md)). For example:
+This is a teaching codebase. Several services have deliberate gaps that drive the course exercises (see [`exercises.md`](exercises.md)). Here's a detailed inventory:
 
-- The two legacy Java services use raw JDBC string concatenation and have SQL injection.
-- `reporting-svc` has old-style Python helpers and an import endpoint that crashes on bad rows.
-- `assets-svc` accepts unvalidated input on create.
-- The dashboard renders some status badges with the wrong colors.
-- `workforce-svc` does not yet POST to `audit-svc` on assignment changes.
+### Security gaps
 
-See [`exercises.md`](exercises.md) for the full exercise list.
+- **auth-svc + audit-svc**: Both use raw JDBC with string concatenation (Exercise #3). `UserRepository.findByUsername()` and `AuditRepository.search()` are SQL injection vulnerabilities — `' OR 1=1 --` will bypass filters.
+- **assets-svc**: Does **not** validate JWTs issued by `auth-svc` (Exercise #14). The auth-svc exposes its public keys at `GET /.well-known/jwks`, but assets-svc accepts all requests unauthenticated.
+- **assets-svc**: `POST /assets` accepts unvalidated input with no DTO validators (Exercise #7). Fields lack nullability constraints.
+
+### Modernization debt
+
+- **auth-svc + audit-svc**: Run Spring Boot 2.7 (EOL Dec 2023) + Java 11 (EOL Sep 2026). Both intentionally outdated to teach framework upgrades (Exercises #9 + #12).
+- **auth-svc**: Uses JJWT 0.11.5, an older major version where the API changed significantly in newer releases.
+- **reporting-svc**: `app/legacy/format_helpers.py` uses deprecated Python idioms — `%` formatting instead of f-strings, `os.path.join` instead of `pathlib.Path`, no type hints, violates PEP 257 (Exercise #4).
+
+### Missing features & resilience
+
+- **assets-svc**: `GET /assets/by-tag/{tag}` endpoint is declared but not wired (Exercise #10).
+- **assets-svc**: `Tests/` directory has only 1 smoke test; lacks CRUD, search, and stats endpoint coverage (Exercise #2).
+- **reporting-svc**: `POST /imports/assets` crashes on the first malformed CSV row with no per-row error handling (Exercise #6). Should return `{ "imported": N, "skipped": M, "errors": [...] }`.
+- **reporting-svc**: `tests/` directory is completely empty (Exercise #11).
+- **notifications-svc**: Email and Slack integrations are stubs (only `print()` statements; no actual dispatch).
+- **workforce-svc**: Calls to `audit-svc` and `notifications-svc` via `RestClient` lack timeout, retry, or circuit-breaker logic. If either service is down, assignment creation fails (no error boundaries).
+- **workforce-svc**: The audit hook in `AssignmentService` is commented out — partially wired but disabled (Exercise #13). Uncomment + wire it to call `POST /events` on audit-svc for each assignment change.
+
+### UI bugs
+
+- **web**: `StatusBadge.astro` maps statuses to incorrect colors — `retired` shows green (should be gray) and `lost` shows blue (should be red) (Exercise #8).
+
+See [`exercises.md`](exercises.md) for the full exercise list and how to complete each gap.
 
 ## Course exercises
 
