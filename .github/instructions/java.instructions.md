@@ -1,5 +1,6 @@
 ---
   applyTo: "services/**/*.java"
+  description: This file describes instructions for Java code style and best practices for the project.
 ---
 
 - Follow standard naming conventions — Classes in PascalCase, methods/variables in camelCase, constants in UPPER_SNAKE_CASE, packages in lowercase. 
