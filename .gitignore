@@ -37,6 +37,11 @@ venv/
 services/*/data/
 !services/*/Data/
 
+# Playwright
+playwright-report/
+test-results/
+blob-report/
+
 # IDE
 .idea/
 .vscode/*

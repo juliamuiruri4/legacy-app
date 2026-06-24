@@ -8,8 +8,8 @@ const { status } = Astro.props as { status: string };
 const variantByStatus: Record<string, string> = {
   available: "bg-success",
   assigned:  "bg-primary",
-  retired:   "bg-success",   // BUG: should be bg-secondary
-  lost:      "bg-primary",   // BUG: should be bg-danger
+  retired:   "bg-secondary",
+  lost:      "bg-danger",
 };
 
 const variant = variantByStatus[status] ?? "bg-secondary";
