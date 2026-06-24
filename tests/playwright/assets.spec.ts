@@ -56,7 +56,6 @@ test.describe("Assets list — filter round trip", () => {
 });
 
 // Exercise #8 — these tests document the CORRECT badge-color contract.
-// They will fail until the intentional bugs in StatusBadge.astro are fixed.
 // Locators are scoped to getByRole("table") so they resolve to the badge <span>
 // inside a table cell, not to a same-text <option> in the Status filter dropdown.
 test.describe("Assets list — status badge colors (Exercise #8)", () => {

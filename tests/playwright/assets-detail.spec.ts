@@ -10,10 +10,12 @@ test.describe("Asset detail — accessibility", () => {
       .nth(1)
       .getByRole("link")
       .first();
+    await expect(firstAssetLink).toBeVisible();
     const assetTag = (await firstAssetLink.textContent())?.trim();
+    expect(assetTag, "Expected first asset link to have text").toBeTruthy();
     await firstAssetLink.click();
 
-    await expect(page.getByRole("heading", { name: assetTag })).toBeVisible();
+    await expect(page.getByRole("heading", { name: assetTag! })).toBeVisible();
     await expect(page.getByRole("navigation")).toBeVisible();
     await expect(page.getByRole("main")).toBeVisible();
     await expect(page.getByRole("contentinfo")).toBeVisible();

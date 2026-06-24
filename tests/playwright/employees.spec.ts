@@ -22,10 +22,12 @@ test.describe("Employees list — happy path", () => {
         .nth(1)
         .getByRole("link")
         .first();
+      await expect(firstNameLink).toBeVisible();
       const employeeName = (await firstNameLink.textContent())?.trim();
+      expect(employeeName, "Expected first employee link to have text").toBeTruthy();
       await firstNameLink.click();
 
-      await expect(page.getByRole("heading", { name: employeeName })).toBeVisible();
+      await expect(page.getByRole("heading", { name: employeeName! })).toBeVisible();
       await expect(page.getByRole("navigation")).toBeVisible();
       await expect(page.getByRole("main")).toBeVisible();
       await expect(page.getByRole("contentinfo")).toBeVisible();

@@ -123,10 +123,17 @@ test.describe("Keyboard navigation", () => {
     await expect(page).toHaveURL(/\/assets/);
   });
 
-  test("tab order reaches the New asset button on the assets page", async ({ page }) => {
+  test("tab order reaches the New asset link on the assets page", async ({ page }) => {
     await page.goto("/assets");
     const newAssetLink = page.getByRole("link", { name: "+ New asset" });
-    await newAssetLink.focus();
+
+    for (let tabIndex = 0; tabIndex < 10; tabIndex += 1) {
+      await page.keyboard.press("Tab");
+      if (await newAssetLink.evaluate((element) => element === document.activeElement)) {
+        break;
+      }
+    }
+
     await expect(newAssetLink).toBeFocused();
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/\/assets\/new/);
