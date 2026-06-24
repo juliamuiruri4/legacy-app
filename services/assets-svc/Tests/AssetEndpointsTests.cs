@@ -33,6 +33,18 @@ public class AssetEndpointsTests
         Assert.Equal(payload.Status, asset.Status);
     }
 
+    [Fact(Skip = "Production currently accepts missing required fields; document this gap instead of changing production behavior.")]
+    public async Task Create_with_missing_required_field_returns_bad_request()
+    {
+        using var factory = new AssetApiFactory();
+        using var client = factory.CreateClient();
+        var payload = NewAsset("missing-required") with { AssetTag = "" };
+
+        var response = await client.PostAsJsonAsync("/assets", payload);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
     [Fact]
     public async Task Get_by_unknown_id_returns_not_found()
     {

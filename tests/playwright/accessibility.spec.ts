@@ -17,6 +17,25 @@ test.describe("Dashboard — landmark structure", () => {
   });
 });
 
+test.describe("Dashboard — accessible summary links", () => {
+  test("summary cards are exposed as links", async ({ page }) => {
+    await page.goto("/");
+
+    await expect(page.getByRole("link", { name: /Total assets/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Employees/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Utilization/i })).toBeVisible();
+    await expect(page.getByRole("link", { name: /Lost \/ retired/i })).toBeVisible();
+  });
+
+  test("asset status summary entries are exposed as links", async ({ page }) => {
+    await page.goto("/");
+
+    for (const status of ["available", "assigned", "retired", "lost"]) {
+      await expect(page.getByRole("link", { name: new RegExp(status, "i") })).toBeVisible();
+    }
+  });
+});
+
 test.describe("Active navigation state", () => {
   test("Dashboard link carries aria-current=page on the home page", async ({ page }) => {
     await page.goto("/");
@@ -96,5 +115,25 @@ test.describe("Keyboard navigation", () => {
     await expect(newAssetLink).toBeFocused();
     await page.keyboard.press("Enter");
     await expect(page).toHaveURL(/\/assets\/new/);
+  });
+
+  test("asset form controls follow the visible tab order", async ({ page }) => {
+    await page.goto("/assets/new");
+
+    await page.keyboard.press("Tab");
+    await expect(page.getByLabel("Asset tag")).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(page.getByLabel("Type")).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(page.getByLabel("Manufacturer")).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(page.getByLabel("Model")).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(page.getByLabel("Serial number")).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(page.getByLabel("Status")).toBeFocused();
+
+    await page.getByRole("button", { name: "Create" }).focus();
+    await expect(page.getByRole("button", { name: "Create" })).toBeFocused();
   });
 });

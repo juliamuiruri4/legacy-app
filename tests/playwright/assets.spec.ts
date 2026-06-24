@@ -28,6 +28,33 @@ test.describe("Assets list — happy path", () => {
   });
 });
 
+test.describe("Assets list — filter round trip", () => {
+  test("Status filter limits the visible badges and updates the URL", async ({ page }) => {
+    await page.goto("/assets");
+
+    await page.getByLabel("Status").selectOption("available");
+    await page.getByRole("button", { name: "Filter" }).click();
+
+    await expect(page).toHaveURL(/status=available/);
+    const availableBadges = page.getByRole("table").getByText("available", { exact: true });
+    expect(await availableBadges.count()).toBeGreaterThan(0);
+    await expect(page.getByRole("table").getByText("assigned", { exact: true })).toHaveCount(0);
+    await expect(page.getByRole("table").getByText("retired", { exact: true })).toHaveCount(0);
+    await expect(page.getByRole("table").getByText("lost", { exact: true })).toHaveCount(0);
+  });
+
+  test("Search filter and Clear link round-trip through the URL", async ({ page }) => {
+    await page.goto("/assets");
+
+    await page.getByLabel("Search tag / manufacturer / model").fill("Contoso");
+    await page.getByRole("button", { name: "Filter" }).click();
+
+    await expect(page).toHaveURL(/q=Contoso/);
+    await page.getByRole("link", { name: "Clear" }).click();
+    await expect(page).toHaveURL(/\/assets$/);
+  });
+});
+
 // Exercise #8 — these tests document the CORRECT badge-color contract.
 // They will fail until the intentional bugs in StatusBadge.astro are fixed.
 // Locators are scoped to getByRole("table") so they resolve to the badge <span>

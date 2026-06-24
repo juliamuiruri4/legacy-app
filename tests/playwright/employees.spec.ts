@@ -12,6 +12,29 @@ test.describe("Employees list — happy path", () => {
     await expect(table.getByText("Status", { exact: true })).toBeVisible();
   });
 
+  test.describe("Employee detail — accessibility", () => {
+    test("shows the selected employee with landmarks and active navigation", async ({ page }) => {
+      await page.goto("/employees");
+
+      const firstNameLink = page
+        .getByRole("table")
+        .getByRole("row")
+        .nth(1)
+        .getByRole("link")
+        .first();
+      const employeeName = (await firstNameLink.textContent())?.trim();
+      await firstNameLink.click();
+
+      await expect(page.getByRole("heading", { name: employeeName })).toBeVisible();
+      await expect(page.getByRole("navigation")).toBeVisible();
+      await expect(page.getByRole("main")).toBeVisible();
+      await expect(page.getByRole("contentinfo")).toBeVisible();
+      await expect(
+        page.getByRole("navigation").getByRole("link", { name: "Employees" })
+      ).toHaveAttribute("aria-current", "page");
+    });
+  });
+
   test("table contains at least one data row", async ({ page }) => {
     await page.goto("/employees");
     const rowCount = await page.getByRole("table").getByRole("row").count();
