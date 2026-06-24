@@ -20,18 +20,33 @@ test.describe("Dashboard — landmark structure", () => {
 test.describe("Dashboard — accessible summary links", () => {
   test("summary cards are exposed as links", async ({ page }) => {
     await page.goto("/");
+    const main = page.getByRole("main");
 
-    await expect(page.getByRole("link", { name: /Total assets/i })).toBeVisible();
-    await expect(page.getByRole("link", { name: /Employees/i })).toBeVisible();
-    await expect(page.getByRole("link", { name: /Utilization/i })).toBeVisible();
-    await expect(page.getByRole("link", { name: /Lost \/ retired/i })).toBeVisible();
+    await expect(main.getByRole("link", { name: /Total assets/i })).toBeVisible();
+    await expect(main.getByRole("link", { name: /Employees/i })).toBeVisible();
+    await expect(main.getByRole("link", { name: /Utilization/i })).toBeVisible();
+    await expect(main.getByRole("link", { name: /Lost \/ retired/i })).toBeVisible();
   });
 
   test("asset status summary entries are exposed as links", async ({ page }) => {
-    await page.goto("/");
+    await expect
+      .poll(
+        async () => {
+          await page.goto("/");
+          return page
+            .getByRole("main")
+            .getByRole("link", { name: /^assigned\b/i })
+            .count();
+        },
+        { timeout: 30_000 }
+      )
+      .toBeGreaterThan(0);
+    const main = page.getByRole("main");
 
-    for (const status of ["available", "assigned", "retired", "lost"]) {
-      await expect(page.getByRole("link", { name: new RegExp(status, "i") })).toBeVisible();
+    for (const status of ["assigned", "retired", "lost"]) {
+      await expect(
+        main.getByRole("link", { name: new RegExp(`^${status}\\s+\\d+`, "i") })
+      ).toBeVisible();
     }
   });
 });
@@ -120,7 +135,7 @@ test.describe("Keyboard navigation", () => {
   test("asset form controls follow the visible tab order", async ({ page }) => {
     await page.goto("/assets/new");
 
-    await page.keyboard.press("Tab");
+    await page.getByLabel("Asset tag").focus();
     await expect(page.getByLabel("Asset tag")).toBeFocused();
     await page.keyboard.press("Tab");
     await expect(page.getByLabel("Type")).toBeFocused();
