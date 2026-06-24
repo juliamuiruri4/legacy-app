@@ -10,6 +10,7 @@ test.describe("Asset detail — accessibility", () => {
       .nth(1)
       .getByRole("link")
       .first();
+    await expect(firstAssetLink).toBeVisible();
     const assetTag = (await firstAssetLink.textContent())?.trim();
     expect(assetTag, "Expected first asset link to have text").toBeTruthy();
     await firstAssetLink.click();
