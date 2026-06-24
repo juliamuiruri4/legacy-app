@@ -71,9 +71,10 @@ cd services/reporting-svc && pytest
 
 ## Cross-cutting constraints
 
-- **Do not change production application code.** Tests must adapt to the code, not
-  the reverse. If a real production bug blocks a test, document it in the PR
-  description under a "Known production bugs" heading instead of fixing it.
+- **Do not change production backend behavior.** Small frontend markup and
+  accessibility fixes are allowed when required for role/label-based tests. If a
+  real backend production bug blocks a test, document it in the PR description
+  under a "Known production bugs" heading instead of fixing it.
 - **Do not add new backend framework dependencies** unless they are strictly
   required by the test framework already implied by the service (xUnit for .NET,
   pytest + httpx for Python).
